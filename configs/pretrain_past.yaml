@@ -1,0 +1,25 @@
+# Reference configuration: EA-MCM self-supervised pre-training on the
+# P.A.S.T. unlabeled pool (~30 h). tools/*.py are CLI-driven; the values
+# below mirror the paper defaults (Table 1, Group B; Sec. 3).
+strategy: ea_mcm
+manifest: data/past/unlabeled.csv
+data_root: ""
+init_checkpoint: ckpt/audiomae_audioset.pth   # AS -> P.A.S.T. two-stage SSL
+
+# EA-MCM masking hyper-parameters
+mask_ratio: 0.75        # rho_total
+anchor_ratio: 0.40      # rho_anchor
+num_views: 8            # V
+
+# optimization
+optimizer: adamw
+epochs: 300
+batch_size: 128
+lr: 8.0e-5
+weight_decay: 0.05
+warmup_epochs: 20
+min_lr: 1.0e-6
+clip_grad: 3.0
+scheduler: warmup-cosine
+amp: true
+seed: 42

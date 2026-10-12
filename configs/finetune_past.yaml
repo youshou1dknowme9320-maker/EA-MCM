@@ -1,0 +1,26 @@
+# Reference configuration: supervised fine-tuning on the P.A.S.T. annotated
+# core (1,440 session-isolated clips, 6 classes). Mirrors the paper protocol
+# (Table 1 / Table 2): 6 independent runs, mean ± 95% CI.
+dataset: past
+train_manifest: data/past/train.csv
+val_manifest: data/past/val.csv
+test_manifest: data/past/test.csv
+pretrained: work_dirs/pretrain_eamcm/encoder_last.pth
+
+epochs: 60
+batch_size: 64
+lr: 8.0e-5
+weight_decay: 0.05
+warmup_epochs: 5
+min_lr: 1.0e-6
+clip_grad: 3.0
+dropout: 0.1
+scheduler: warmup-cosine
+amp: true
+
+runs: 6
+seed: 42
+
+# Table 2 orthogonality study (enable individually):
+# specaugment: true   # Group 2: + SpecAugment
+# mixup: true         # Group 3: + Audio Mixup (Beta(0.4, 0.4))

@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+
+# Experiments
+work_dirs/
+*.pth
+*.pt
+*.ckpt
+*.jsonl
+
+# Data
+data/
+*.wav
+*.flac
+*.mp3
+
+# Tooling
+.idea/
+.vscode/
+.DS_Store
+wandb/
