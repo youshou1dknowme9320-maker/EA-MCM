@@ -1,0 +1,58 @@
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "eamcm"
+version = "1.0.0"
+description = "Energy-Anchored Multi-Context Masking: self-supervised audio representation learning for transient bioacoustics"
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.8"
+authors = [
+    { name = "Xian Tang" },
+    { name = "Wei Cao" },
+    { name = "Jia Wang" },
+]
+keywords = [
+    "self-supervised-learning",
+    "audio-representation-learning",
+    "masked-autoencoder",
+    "spectrogram-masking",
+    "bioacoustics",
+    "icassp-2026",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Multimedia :: Sound/Audio :: Analysis",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+    "torch>=2.0",
+    "torchaudio>=2.0",
+    "numpy>=1.24",
+    "matplotlib>=3.7",
+    "soundfile>=0.12",
+]
+
+[project.urls]
+Homepage = "https://github.com/youshou1dknowme9320-maker/EA-MCM"
+Documentation = "https://github.com/youshou1dknowme9320-maker/EA-MCM#quick-start"
+Repository = "https://github.com/youshou1dknowme9320-maker/EA-MCM"
+Issues = "https://github.com/youshou1dknowme9320-maker/EA-MCM/issues"
+
+[tool.setuptools.packages.find]
+include = ["eamcm*"]
+exclude = ["tests*", "tools*"]
+
+[tool.setuptools.package-data]
+"*" = ["*.yaml"]
