@@ -101,13 +101,13 @@ Porting audio foundation models to **transient bioacoustics** faces severe domai
 Partition the log-Mel spectrogram $X \in \mathbb{R}^{T \times F}$ into $N$ patches. Under uniform random masking, the expected number of exposed patches within a high-energy formant cluster $H \subset \mathcal{P}$ is:
 
 $$
-\mathbb{E}\big[|H \cap V_{\text{rand}}|\big] = (1 - \rho_{\text{total}})\,|H| > 0 \tag{1}
+\mathbb{E}\big[|H \cap V_{\text{rand}}|\big] = (1 - \rho_{\text{total}})\,|H| > 0 \qquad (1)
 $$
 
 Due to the strong local spectral continuity of physical acoustic signals, a masked high-energy patch $P_m$ can be directly extrapolated from a neighboring visible patch $P_v$ (Euclidean distance $d(P_m, P_v) < \epsilon$):
 
 $$
-\hat{P}_m \approx \mathcal{F}_{\text{extrapolate}}(P_v) \tag{2}
+\hat{P}_m \approx \mathcal{F}_{\text{extrapolate}}(P_v) \qquad (2)
 $$
 
 The network therefore minimizes reconstruction error through local interpolation — learning **spatial shortcuts** rather than global acoustic dependencies.
@@ -121,7 +121,7 @@ The network therefore minimizes reconstruction error through local interpolation
 In a multi-view masking framework where $V$ mask views are generated per sample, if each view is sampled independently, the probability that a focal patch $P_k \in A^*$ is exposed in at least one view is:
 
 $$
-\mathbb{P}\Big(P_k \in \bigcup_{v=1}^{V} V_{\text{rand}}^{(v)}\Big) = 1 - \rho_{\text{total}}^V \xrightarrow{V \to \infty} 1 \tag{5}
+\mathbb{P}\Big(P_k \in \bigcup_{v=1}^{V} V_{\text{rand}}^{(v)}\Big) = 1 - \rho_{\text{total}}^V \;\to\; 1 \quad \text{as } V \to \infty \qquad (3)
 $$
 
 For $V=8$ and $\rho_{\text{total}} = 75\%$, this probability is approximately **90%**; for $V=16$ it reaches 99%. The encoder can therefore bypass the intended contextual inference task by correlating leaked focal signatures across views. The naive multi-view baseline (Naive Random Multi-Masking, $V=8$) only achieves 93.37% — below the expected improvement over single-view Random Masking — which is direct evidence of the leakage effect.
@@ -137,7 +137,7 @@ EA-MCM consists of three steps, all computed in closed form on the **raw (unnorm
 Apply the acoustic power operator to map each patch back to its linear spectral amplitude density:
 
 $$
-E(P_i) = \lVert \exp(P_i) \rVert_1, \quad i = 1, \dots, N \tag{3}
+E(P_i) = \lVert \exp(P_i) \rVert_1, \quad i = 1, \dots, N \qquad (4)
 $$
 
 The per-sample global maximum is subtracted before exponentiation for numerical stability; because this shift is constant within a sample, the induced patch ranking — and therefore the anchor set — is mathematically identical to the unshifted formulation.
@@ -147,7 +147,7 @@ The per-sample global maximum is subtracted before exponentiation for numerical 
 Select the set of patches with the largest cumulative energy under the strict cardinality constraint $K_{\text{anchor}} = \lfloor \rho_{\text{anchor}}\, N \rfloor$ as the anchor set:
 
 $$
-A^* = \arg\max_{A \subseteq \mathcal{P},\, |A| = K_{\text{anchor}}} \sum_{P_k \in A} E(P_k) \tag{4}
+A^* = \operatorname*{arg\,max}_{A \subseteq \mathcal{P},\, |A| = K_{\text{anchor}}} \sum_{P_k \in A} E(P_k) \qquad (5)
 $$
 
 $A^*$ is unconditionally masked in **all** $V$ views — the cross-view focal leakage probability is **exactly zero by construction**.
@@ -157,16 +157,22 @@ $A^*$ is unconditionally masked in **all** $V$ views — the cross-view focal le
 The remaining patches form the ambient context $\Omega_{\text{context}} = \mathcal{P} \setminus A^*$. A dynamic context mask is sampled uniformly per view:
 
 $$
-M_{\text{dynamic}}^{(v)} \sim \mathcal{U}\big(\Omega_{\text{context}},\, K_{\text{dynamic}}\big), \quad K_{\text{dynamic}} = \lfloor (\rho_{\text{total}} - \rho_{\text{anchor}})\, N \rfloor \tag{6}
+M_{\text{dynamic}}^{(v)} \sim \mathcal{U}\big(\Omega_{\text{context}},\, K_{\text{dynamic}}\big), \quad K_{\text{dynamic}} = \lfloor (\rho_{\text{total}} - \rho_{\text{anchor}})\, N \rfloor \qquad (6)
 $$
 
-The composite mask is $M_{\text{total}}^{(v)} = A^* \cup M_{\text{dynamic}}^{(v)}$. The core implementation (corresponds to [eamcm/masking/ea_mcm.py](eamcm/masking/ea_mcm.py)):
+The composite mask combines both components:
+
+$$
+M_{\text{total}}^{(v)} = A^* \,\cup\, M_{\text{dynamic}}^{(v)}, \quad v = 1, \dots, V \qquad (7)
+$$
+
+Core implementation (see [eamcm/masking/ea_mcm.py](eamcm/masking/ea_mcm.py)):
 
 ```python
-energy  = patch_energy(raw_fbank)                # E(P_i) = ||exp(P_i)||_1        (Eq. 3)
-anchor  = topk_mask(energy, k_anchor)            # A*: high-energy focal core     (Eq. 4)
-dynamic = topk_mask(noise.masked_fill(anchor, -1), k_dynamic)   # sample from Ω_context (Eq. 6)
-masks   = [(anchor | dynamic).clone() for _ in range(V)]        # anchor shared across views (Eq. 7)
+energy  = patch_energy(raw_fbank)                # E(P_i) = ||exp(P_i)||_1        (Eq. 4)
+anchor  = topk_mask(energy, k_anchor)            # A*: high-energy focal core     (Eq. 5)
+dynamic = topk_mask(noise.masked_fill(anchor, -1), k_dynamic)   # sample from Omega_context (Eq. 6)
+masks   = [(anchor | dynamic).clone() for _ in range(V)]        # composite mask, shared anchor (Eq. 7)
 ```
 
 ### Architecture Integration
@@ -174,7 +180,7 @@ masks   = [(anchor | dynamic).clone() for _ in range(V)]        # anchor shared 
 The Transformer encoder processes only visible tokens; a lightweight decoder minimizes MSE on the masked patches:
 
 $$
-\mathcal{L}_{\text{rec}} = \frac{1}{|M_{\text{total}}^{(v)}|} \sum_{P_i \in M_{\text{total}}^{(v)}} \lVert \hat{P}_i - P_i \rVert_2^2 \tag{8}
+\mathcal{L}_{\text{rec}} = \frac{1}{|M_{\text{total}}^{(v)}|} \sum_{P_i \in M_{\text{total}}^{(v)}} \lVert \hat{P}_i - P_i \rVert_2^2 \qquad (8)
 $$
 
 Because $A^*$ is invariant across views while the ambient context varies stochastically, this objective forces the encoder to infer the missing vocalization core from **physically coupled contextual cues** such as respiratory precursors and structural reverberation. After pre-training, the decoder is discarded and the encoder tokens are transferred downstream via global average pooling (GAP).
@@ -451,7 +457,7 @@ EA-MCM/
 ├── eamcm/
 │   ├── __init__.py
 │   ├── masking/                # 9 masking strategies: EA-MCM + 8 baselines (unified List[(B,N) bool] interface)
-│   │   ├── base.py             #   Base class + acoustic power operator patch_energy (Eq. 3)
+│   │   ├── base.py             #   Base class + acoustic power operator patch_energy (Eq. 4)
 │   │   ├── ea_mcm.py           #   EA-MCM / Naive Random Multi-Masking
 │   │   ├── random.py           #   Random / Time-Freq / Inverse Block (EAT)
 │   │   ├── attmask.py          #   AttMask-Low/Hint / Hard-Patch / Att-Guided
