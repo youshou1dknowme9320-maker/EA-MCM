@@ -1,13 +1,13 @@
 # EA-MCM: Energy-Anchored Multi-Context Masking for Transient Bioacoustics
 
-[![ICASSP 2026](https://img.shields.io/badge/ICASSP-2026-0066CC.svg)](https://2026.ieeeicassp.org/)
+[![ICASSP 2027](https://img.shields.io/badge/ICASSP-2027-0066CC.svg)](https://2027.ieeeicassp.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![PyTorch 2.0+](https://img.shields.io/badge/PyTorch-2.0+-EE4C2C.svg)](https://pytorch.org/)
 
 <sub>Official PyTorch implementation of *Beyond Random Masking: Energy-Anchored Contextual Representation Learning for Transient Bioacoustics*</sub>
 
-> **Paper Status:** ICASSP 2026 Submission
+> **Paper Status:** ICASSP 2027 Submission
 > **Authors:** Xian Tang<sup>1,\*</sup>, Wei Cao<sup>1,\*</sup>, Jia Wang<sup>1,†</sup>
 > <sup>1</sup> College of Informatics, Huazhong Agricultural University
 > <sup>\*</sup> Equal contribution. <sup>†</sup> Corresponding author.
