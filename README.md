@@ -147,7 +147,7 @@ The per-sample global maximum is subtracted before exponentiation for numerical 
 Select the set of patches with the largest cumulative energy under the strict cardinality constraint $K_{\text{anchor}} = \lfloor \rho_{\text{anchor}}\, N \rfloor$ as the anchor set:
 
 $$
-A^* = \arg\max_{A \subseteq \mathcal{P},\, |A| = K_{\text{anchor}}} \sum_{P_k \in A} E(P_k) \qquad (5)
+A^* = \mathrm{arg\,max}_{A \subseteq \mathcal{P},\; |A| = K_{\text{anchor}}} \sum_{P_k \in A} E(P_k) \qquad (5)
 $$
 
 $A^*$ is unconditionally masked in **all** $V$ views — the cross-view focal leakage probability is **exactly zero by construction**.
